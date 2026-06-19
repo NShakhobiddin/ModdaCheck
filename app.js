@@ -10,7 +10,7 @@ const {
 // --- BACKEND PROXY (Cloudflare Worker) ---
 // Anthropic API kaliti bu faylda EMAS — u Worker ichida maxfiy saqlanadi.
 // Worker'ni deploy qilgandan so'ng, uning manzilini shu yerga yozing:
-const PROXY_URL = "https://taqiqcheck-proxy.YOUR-SUBDOMAIN.workers.dev";
+const PROXY_URL = "https://taqiqcheck-proxy.g775fr6ndy.workers.dev";
 
 // --- ICONS ---
 const SearchIcon = props => /*#__PURE__*/React.createElement("svg", {
