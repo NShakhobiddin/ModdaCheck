@@ -298,15 +298,12 @@
 
                 } catch (error) {
                     console.error("Chat API Error:", error);
-                    let userErrorMessage = "Xatolik: Internetni tekshiring va qaytadan urinib ko'ring.";
-                    if (error.message.includes('403')) {
-                        userErrorMessage = "Xatolik 403: API kalit ruxsati yo'q yoki noto'g'ri. Sozlamalarni tekshiring.";
-                        setShowSettings(true);
-                    } else if (error.message.includes('API key not valid')) {
-                        userErrorMessage = "API kalit yaroqsiz. Iltimos, to'g'ri kalit kiriting.";
-                        setShowSettings(true);
+                    let userErrorMessage = "Xatolik: " + (error.message || "noma'lum");
+                    if (error.message && error.message.includes('Failed to fetch')) {
+                        userErrorMessage = "Worker'ga ulanib bo'lmadi (CORS yoki manzil). Cloudflare'da ALLOWED_ORIGIN to'g'riligini yoki PROXY_URL ni tekshiring.";
+                    } else if (error.message && error.message.includes('ANTHROPIC_API_KEY')) {
+                        userErrorMessage = "Worker'da kalit (ANTHROPIC_API_KEY) sozlanmagan. Cloudflare → Settings → Variables and Secrets ga qo'shing va Deploy bosing.";
                     }
-                    
                     setMessages(prev => [...prev, {role: 'assistant', text: userErrorMessage}]);
                 } finally {
                     setIsLoadingChat(false);
@@ -431,16 +428,12 @@
                 } catch (err) {
                     console.error("Scan API Error:", err);
                     setIsScanning(false);
-                    let errorMsg = "Tahlil xatoligi: Internetni tekshiring va qaytadan urinib ko'ring.";
-                    
-                    if (err.message.includes('403')) {
-                        errorMsg = "Xatolik 403: Ruxsat yo'q. API kalit domenini tekshiring.";
-                        setShowSettings(true);
-                    } else if (err.message.includes('API key not valid')) {
-                        errorMsg = "API kalit yaroqsiz.";
-                        setShowSettings(true);
+                    let errorMsg = "Tahlil xatoligi: " + (err.message || "noma'lum");
+                    if (err.message && err.message.includes('Failed to fetch')) {
+                        errorMsg = "Worker'ga ulanib bo'lmadi (CORS yoki manzil). Cloudflare ALLOWED_ORIGIN/PROXY_URL ni tekshiring.";
+                    } else if (err.message && err.message.includes('ANTHROPIC_API_KEY')) {
+                        errorMsg = "Worker'da kalit (ANTHROPIC_API_KEY) sozlanmagan.";
                     }
-                    
                     setScanStatus(errorMsg);
                 }
             };
