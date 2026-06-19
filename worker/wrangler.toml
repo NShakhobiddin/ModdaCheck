@@ -1,0 +1,12 @@
+name = "taqiqcheck-proxy"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+# ANTHROPIC_API_KEY ni shu yerga YOZMANG! U maxfiy (secret).
+# Quyidagi buyruq bilan qo'shing:
+#   wrangler secret put ANTHROPIC_API_KEY
+#
+# Ixtiyoriy: faqat o'z saytingizdan so'rovlarni qabul qilish uchun
+# (abuse'dan himoya). USERNAME ni o'zingiznikiga almashtiring:
+# [vars]
+# ALLOWED_ORIGIN = "https://USERNAME.github.io"
