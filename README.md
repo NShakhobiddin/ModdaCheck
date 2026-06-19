@@ -63,6 +63,24 @@ Repozitoriyada `.github/workflows/pages.yml` mavjud — branchga push qilinganda
 
 ---
 
+## Kodni o'zgartirish (build)
+
+JSX brauzerda emas, **oldindan kompilyatsiya** qilinadi (tezroq va ishonchli — brauzerda Babel ishlatilmaydi):
+
+- `app.jsx` — **manba** (shu faylni tahrirlang).
+- `app.js` — **avtomatik generatsiya** (brauzer shuni ishlatadi, qo'lda tahrirlamang).
+- `index.html` — `app.js` ni yuklaydi.
+
+`app.jsx` ni o'zgartirgandan so'ng `app.js` ni qayta yarating:
+
+```bash
+npx @babel/cli app.jsx --presets @babel/preset-react -o app.js
+# yoki:
+npm i -D @babel/core @babel/cli @babel/preset-react
+```
+
+> Muhim: `@babel/preset-react` **classic** runtime'da ishlashi kerak (standart). Bu `React.createElement` chiqaradi — `react/jsx-runtime` importi qo'shilmaydi (aks holda sahifa oq bo'lib qoladi).
+
 ## Mahalliy sinov
 
 `index.html` va `database.js` bitta papkada bo'lishi shart. Brauzer cheklovlari sababli to'g'ridan-to'g'ri ochish o'rniga kichik server ishlating:
