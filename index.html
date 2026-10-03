@@ -2,105 +2,60 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <!-- Viewport-fit=cover va scale blocklari Telegram Web App uchun juda muhim -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>TAQIQCHECK - Bojxona Nazorati</title>
-    
-    <!-- Telegram Web App SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- React va ReactDOM -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>MODDACHECK — Bojxona nazorati</title>
+    <meta name="description" content="O'zbekiston bojxonasida nazorat ostidagi moddalar va dori vositalarini tekshirish: qidiruv, rasm tahlili, AI maslahatchi. VMQ-330, VMQ-818, VMQ-191.">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="color-scheme" content="light">
+    <meta name="application-name" content="MODDACHECK">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MODDACHECK">
+    <meta property="og:title" content="MODDACHECK — Bojxona nazorati">
+    <meta property="og:description" content="Nazorat ostidagi moddalar va dorilarni tekshirish ilovasi">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="icons/icon-512.png">
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 
-        body {
-            background-color: #f8fafc;
-            font-family: 'Inter', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            /* Webapp da select qilib bo'lmasligi uchun */
-            -webkit-user-select: none;
-            user-select: none;
-        }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'">
 
-        /* Animatsiyalar */
-        @keyframes scan {
-            0% { top: 0%; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { top: 100%; opacity: 0; }
-        }
-        .scan-line {
-            position: absolute;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #3b82f6, transparent);
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.8);
-            animation: scan 2s infinite linear;
-        }
-        .fade-in {
-            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-pulse-slow {
-            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        
-        /* Chat bubbles */
-        .chat-bubble {
-            position: relative;
-            max-width: 80%;
-            padding: 10px 14px;
-            border-radius: 16px;
-            font-size: 13px;
-            line-height: 1.4;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        .chat-bubble.user {
-            background: #3b82f6;
-            color: white;
-            border-bottom-right-radius: 4px;
-            margin-left: auto;
-        }
-        .chat-bubble.ai {
-            background: #f1f5f9;
-            color: #1e293b;
-            border-bottom-left-radius: 4px;
-            margin-right: auto;
-        }
-    </style>
+    <!-- Oldindan kompilyatsiya qilingan Tailwind + maxsus CSS (CDN yo'q) -->
+    <link rel="stylesheet" href="styles.css?v=%%VERSION%%">
+
+    <script>
+      window.__APP_VERSION__ = '%%APP_SEMVER%%';
+      window.__BUILD_ID__ = '%%VERSION%%';
+      window.__BUILD_DATE__ = '%%BUILD_DATE%%';
+    </script>
+    <!-- Telegram Web App SDK (Telegram ichida ochilganda; boshqa joyda zararsiz) -->
+    <script src="https://telegram.org/js/telegram-web-app.js" async></script>
 </head>
 <body class="flex justify-center min-h-screen bg-slate-50">
 
-    <div id="root" class="w-full max-w-md bg-white min-h-[100dvh] shadow-2xl shadow-slate-300 flex flex-col border-x border-slate-200 relative overflow-hidden"></div>
+    <div id="root" class="w-full max-w-md bg-white min-h-screen shadow-2xl shadow-slate-300 flex flex-col border-x border-slate-200 relative overflow-hidden"></div>
+    <noscript><div style="padding:24px;font-family:system-ui">MODDACHECK ishlashi uchun JavaScript yoqilgan bo'lishi kerak.</div></noscript>
 
-    <!-- MA'LUMOTLAR BAZASINI YUKLASH (database.js) -->
-    <!-- Bu fayl index.html bilan bitta papkada bo'lishi shart -->
-    <script src="database.js"></script>
+    <!-- Ma'lumotlar va modullar (o'z domenimizdan; oflayn ishlaydi) -->
+    <script src="database.js?v=%%VERSION%%"></script>
+    <script src="matcher.js?v=%%VERSION%%"></script>
+    <script src="i18n.js?v=%%VERSION%%"></script>
+    <script src="markdown.js?v=%%VERSION%%"></script>
+    <script src="vendor/react.js"></script>
+    <script src="vendor/react-dom.js"></script>
+    <script src="app.js?v=%%VERSION%%"></script>
 
-    <script src="app.js"></script>
+    <script>
+      // Service worker: app shell oflayn ishlaydi (qidiruv, ma'lumotnoma)
+      if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+        window.addEventListener('load', function () {
+          navigator.serviceWorker.register('sw.js').catch(function (e) { console.warn('SW ro\'yxatdan o\'tmadi', e); });
+        });
+      }
+    </script>
 </body>
 </html>

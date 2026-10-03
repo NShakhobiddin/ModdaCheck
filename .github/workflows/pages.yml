@@ -1,10 +1,11 @@
-name: Deploy to GitHub Pages
+name: Build, test & deploy to GitHub Pages
 
 on:
   push:
     branches:
       - main
       - claude/wonderful-johnson-61lmgh
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -12,33 +13,50 @@ permissions:
   pages: write
   id-token: write
 
-# Bir vaqtda faqat bitta deploy
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Test (matcher + database schema)
+        run: npm test
+
+      - name: Build (JSX -> JS, Tailwind, PWA)
+        run: npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
   deploy:
+    # Faqat push bo'lganda deploy (PR'larda faqat build/test)
+    if: github.event_name != 'pull_request'
+    needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
-          # Repo'da Pages yoqilmagan bo'lsa, avtomatik yoqishga harakat qiladi
           enablement: true
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Saytning ildiz papkasi (index.html va database.js shu yerda)
-          path: "."
-
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
