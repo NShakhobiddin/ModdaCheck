@@ -172,16 +172,22 @@
         // --- ILOVA ---
         const App = () => {
             // Til
-            const [lang, setLang] = useState(() => {
+            // Til avtomatik aniqlanadi (Telegram yoki qurilma tili). Tanlash tugmasi yo'q.
+            // O'zbek tili birinchi o'rinda bo'lsa yoki rus tili umuman bo'lmasa -> uz.
+            const lang = useMemo(() => {
                 try {
-                    const saved = localStorage.getItem('mc_lang');
-                    if (saved === 'uz' || saved === 'ru') return saved;
-                    const nav = (navigator.language || '').toLowerCase();
-                    return nav.startsWith('ru') ? 'ru' : 'uz';
-                } catch (e) { return 'uz'; }
-            });
+                    const tgLang = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe
+                        && window.Telegram.WebApp.initDataUnsafe.user && window.Telegram.WebApp.initDataUnsafe.user.language_code;
+                    const list = [tgLang].concat(navigator.languages || [navigator.language]).filter(Boolean).map((s) => String(s).toLowerCase());
+                    for (const l of list) {
+                        if (l.startsWith('uz')) return 'uz';
+                        if (l.startsWith('ru') || l.startsWith('be') || l.startsWith('kk') || l.startsWith('ky') || l.startsWith('tg')) return 'ru';
+                    }
+                } catch (e) {}
+                return 'uz';
+            }, []);
+            useEffect(() => { document.documentElement.lang = lang; }, [lang]);
             const t = useCallback((k, vars) => I18N.t(lang, k, vars), [lang]);
-            const changeLang = (l) => { setLang(l); try { localStorage.setItem('mc_lang', l); } catch (e) {} document.documentElement.lang = l; };
 
             // Tarmoq holati
             const [online, setOnline] = useState(typeof navigator === 'undefined' ? true : navigator.onLine !== false);
@@ -372,15 +378,6 @@ Qoidalar: faqat berilgan ma'lumotlarga tayaning, aniq bilmasangiz "aniq emas, bo
                             <h3 id="info-title" className="text-lg font-bold text-slate-900">{t('info_title')}</h3>
                         </div>
                         <div className="space-y-4 text-sm">
-                            <div className="flex items-center justify-between bg-slate-50 rounded-xl p-3 border border-slate-100">
-                                <span className="font-bold text-slate-700">{t('info_lang')}</span>
-                                <div className="flex bg-white rounded-lg border border-slate-200 p-0.5" role="group" aria-label={t('info_lang')}>
-                                    {['uz', 'ru'].map((l) => (
-                                        <button key={l} type="button" onClick={() => changeLang(l)} aria-pressed={lang === l}
-                                            className={`px-3 py-1.5 rounded-md text-xs font-bold uppercase ${lang === l ? 'bg-blue-600 text-white' : 'text-slate-600 hover:bg-slate-100'}`}>{l}</button>
-                                    ))}
-                                </div>
-                            </div>
                             <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
                                 <p className="font-bold text-amber-900 mb-1">{t('info_disclaimer_title')}</p>
                                 <p className="text-xs text-amber-900/90 leading-relaxed">{t('info_disclaimer')}</p>
@@ -454,7 +451,6 @@ Qoidalar: faqat berilgan ma'lumotlarga tayaning, aniq bilmasangiz "aniq emas, bo
                                 {!online && (
                                     <span className="flex items-center gap-1 text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-1 rounded-lg" role="status"><WifiOffIcon /> {t('offline_badge')}</span>
                                 )}
-                                <button type="button" onClick={() => changeLang(lang === 'uz' ? 'ru' : 'uz')} aria-label={t('info_lang')} className="text-[11px] font-black uppercase bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 px-2.5 py-1.5 rounded-lg">{lang === 'uz' ? 'RU' : 'UZ'}</button>
                                 <button type="button" onClick={() => setShowInfo(true)} aria-label={t('info_open')} className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 p-1.5 rounded-lg"><InfoIcon className="w-4 h-4" /></button>
                             </div>
                         </div>
