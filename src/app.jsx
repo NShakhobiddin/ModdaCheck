@@ -46,15 +46,18 @@
             c5: { soft: 'bg-sev5-soft', ink: 'text-sev5-ink', dot: 'bg-sev5', ring: 'border-sev5/30' },
             c0: { soft: 'bg-surface-2', ink: 'text-ink-2', dot: 'bg-ink-3', ring: 'border-line' },
         };
-        const STEP_ICONS = { ban: Ic.Ban, alert: Ic.Alert, info: Ic.Info, doc: Ic.Doc, declare: Ic.Declare, clock: Ic.Clock, package: Ic.Package };
+        // Bojxona xodimi uchun tekshiruv ko'rsatmasi (toifa bo'yicha)
+        const STEP_ICONS = { ban: Ic.Ban, alert: Ic.Alert, info: Ic.Info, doc: Ic.Doc, declare: Ic.Declare, clock: Ic.Clock, package: Ic.Package, bell: Ic.Bell, search: Ic.Search };
         const STEPS = {
-            c1: [['ban', 'step_c1_1'], ['alert', 'step_c1_2'], ['info', 'step_c1_3']],
-            c2: [['doc', 'step_c2_1'], ['declare', 'step_c2_2'], ['clock', 'step_c2_3']],
-            c3: [['doc', 'step_c3_1'], ['declare', 'step_c3_2'], ['package', 'step_c3_3']],
-            c4: [['alert', 'step_c4_1'], ['doc', 'step_c4_2'], ['declare', 'step_c4_3']],
-            c5: [['doc', 'step_c5_1'], ['declare', 'step_c5_2'], ['alert', 'step_c5_3']],
+            c1: [['ban', 'step_c1_1'], ['bell', 'step_c1_2'], ['declare', 'step_c1_3'], ['search', 'step_c1_4']],
+            c2: [['doc', 'step_c2_1'], ['declare', 'step_c2_2'], ['clock', 'step_c2_3'], ['bell', 'step_c2_4']],
+            c3: [['doc', 'step_c3_1'], ['declare', 'step_c3_2'], ['package', 'step_c3_3'], ['bell', 'step_c3_4']],
+            c4: [['package', 'step_c4_1'], ['doc', 'step_c4_2'], ['search', 'step_c4_3'], ['bell', 'step_c4_4']],
+            c5: [['doc', 'step_c5_1'], ['declare', 'step_c5_2'], ['package', 'step_c5_3'], ['bell', 'step_c5_4']],
             c0: [],
         };
+        // Kuchli ogohlantirish banneri foni (to'q rang + kontrast matn; ikkala mavzuda AA)
+        const ALERT_BG = { c1: 'bg-sev1-ink', c2: 'bg-sev2-ink', c3: 'bg-sev3-ink', c4: 'bg-sev4-ink', c5: 'bg-sev5-ink', c0: 'bg-ink-2' };
 
         const DATABASE = window.TAQIQ_DATABASE || [];
         const INDEX = M.buildIndex(DATABASE);
@@ -203,10 +206,24 @@
         };
         const SevPill = ({ code, children, className = '' }) => {
             const s = SEV[code] || SEV.c0;
+            const strong = code === 'c1'; // taqiqlangan — e'tiborni kuchaytirish uchun to'q fon
             return (
-                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold whitespace-nowrap ${s.soft} ${s.ink} ${className}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />{children}
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold whitespace-nowrap ${strong ? 'bg-sev1-ink text-canvas' : `${s.soft} ${s.ink}`} ${className}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${strong ? 'bg-canvas' : s.dot}`} />{children}
                 </span>
+            );
+        };
+        // Bojxona xodimi uchun kuchli ogohlantirish (DIQQAT / YUQORI XAVF)
+        const AlertBanner = ({ code, title, sub, className = '' }) => {
+            const Icon = code === 'c1' ? Ic.Ban : Ic.Alert;
+            return (
+                <div role="alert" className={`rounded-2xl px-4 py-3.5 flex items-start gap-3 text-canvas shadow-card ${ALERT_BG[code] || ALERT_BG.c0} ${className}`}>
+                    <span className={`w-10 h-10 rounded-full bg-canvas/20 grid place-items-center shrink-0 ${code === 'c1' ? 'alert-pulse' : ''}`}><Icon className="w-[22px] h-[22px]" sw={2.25} /></span>
+                    <div className="min-w-0 pt-0.5">
+                        <p className="text-[15px] font-extrabold tracking-wide uppercase leading-snug">{title}</p>
+                        {sub && <p className="text-[13px] leading-snug mt-1 opacity-95">{sub}</p>}
+                    </div>
+                </div>
             );
         };
         const Card = ({ className = '', children, ...rest }) => (
@@ -522,6 +539,7 @@
             const items = useMemo(() => DATABASE.filter((d) => d.category === category || (d.alsoIn || []).includes(category)), [category]);
             return (
                 <div className="fade-in space-y-4">
+                    <AlertBanner code={cfg.code} title={t('alert_' + cfg.code)} sub={t('alert_' + cfg.code + '_sub')} />
                     <div className={`rounded-3xl p-5 ${s.soft}`}>
                         <div className="flex items-center gap-3">
                             <div className={`w-12 h-12 rounded-2xl bg-surface grid place-items-center shrink-0 ${s.ink}`}><cfg.Icon className="w-6 h-6" /></div>
@@ -559,6 +577,7 @@
             const shown = showAll ? aliases : aliases.slice(0, LIMIT);
             return (
                 <div className="fade-in space-y-3">
+                    <AlertBanner code={cfg.code} title={t('alert_' + cfg.code)} sub={t('alert_' + cfg.code + '_sub')} />
                     <section className={`rounded-3xl p-5 ${s.soft}`}>
                         <div className="flex items-start gap-4">
                             <div className={`w-14 h-14 rounded-2xl bg-surface grid place-items-center shrink-0 shadow-card ${s.ink}`}><cfg.Icon className="w-7 h-7" /></div>
@@ -583,7 +602,7 @@
 
                     {STEPS[cfg.code].length > 0 && (
                         <Card className="p-4">
-                            <h2 className="text-[13px] font-semibold text-ink-3 mb-3">{t('detail_steps')}</h2>
+                            <h2 className={`text-[13px] font-bold mb-3 flex items-center gap-1.5 ${s.ink}`}><Ic.Shield className="w-4 h-4" />{t('detail_steps')}</h2>
                             <ul className="space-y-3">
                                 {STEPS[cfg.code].map(([ic, key]) => {
                                     const I = STEP_ICONS[ic];
@@ -708,10 +727,7 @@
 
                     {phase === 'done' && matches.length > 0 && top && (
                         <>
-                            <div className={`rounded-3xl p-4 flex items-start gap-3 pop-in ${SEV[top.code].soft}`} role="alert">
-                                <span className={`w-11 h-11 rounded-2xl bg-surface grid place-items-center shrink-0 ${SEV[top.code].ink}`}><top.Icon className="w-6 h-6" /></span>
-                                <div className="min-w-0"><h2 className={`font-bold text-[16px] leading-snug ${SEV[top.code].ink}`}>{t('scan_found_title_' + top.code)}</h2><p className="text-[13px] text-ink-2 mt-1 leading-relaxed">{t('scan_found_sub', { n: matches.length })}</p></div>
-                            </div>
+                            <AlertBanner className="pop-in" code={top.code} title={t('scan_found_title_' + top.code)} sub={`${t('scan_action_' + top.code)} ${t('scan_found_sub', { n: matches.length })}`} />
                             <div>
                                 <Label>{t('scan_list_title')}</Label>
                                 <Card className="divide-y divide-line overflow-hidden">
@@ -1110,7 +1126,7 @@
                     }).join('\n');
                 }
                 const langName = lang === 'ru' ? 'rus' : "o'zbek (lotin)";
-                const systemPrompt = `Siz "MODDACHECK" ilovasining O'zbekiston bojxona qonunchiligi bo'yicha maslahatchisisiz.
+                const systemPrompt = `Siz "MODDACHECK" ilovasida O'zbekiston bojxona xodimlariga (inspektorlarga) yordam beruvchi maslahatchisiz. Foydalanuvchi — bojxona xodimi.
 Asosiy qoidalar (VMQ-191, VMQ-330, VMQ-818):
 1. Jismoniy shaxslar tibbiy hujjatsiz: 10 xil nomdagi dori, har biridan 5 o'ramgacha; tibbiy buyumlar 5 birlikgacha.
 2. I ro'yxat (taqiqlangan giyohvandlik): olib o'tish qat'iyan man etiladi.
@@ -1119,7 +1135,7 @@ Asosiy qoidalar (VMQ-191, VMQ-330, VMQ-818):
 5. IV ro'yxat (prekursor): nazorat ostida; tijorat miqdori yoki hujjatsiz taqiqlanadi.
 6. Kuchli ta'sir qiluvchi (VMQ-818): retsept va deklaratsiya; katta miqdor javobgarlikka olib keladi.
 ${ctx}
-Qoidalar: faqat berilgan ma'lumotlarga tayaning, aniq bilmasangiz "aniq emas, bojxona xodimi bilan aniqlashtiring" deng. Javob qisqa, tuzilgan (kerak bo'lsa ro'yxat), ${langName} tilida. Bu yuridik maslahat emasligini kerak bo'lganda eslating.`;
+Qoidalar: javobni xodim nuqtai nazaridan bering — nimani tekshirish, qanday hujjat talab qilish, me'yor oshsa yoki hujjat bo'lmasa qanday harakat qilish (umumiy tartibda: tovarni ushlab qolish, rahbariyatga xabar berish, belgilangan tartibda rasmiylashtirish). Taqiqlangan (I ro'yxat) moddalar bo'yicha javobni "DIQQAT" bilan boshlang. Faqat berilgan ma'lumotlarga tayaning; aniq protsessual normani bilmasangiz, ichki yo'riqnoma va rahbariyat bilan aniqlashtirishni tavsiya eting. Javob qisqa, tuzilgan (kerak bo'lsa ro'yxat), ${langName} tilida.`;
 
                 const hist = history.filter((m) => !m.meta).slice(-10);
                 while (hist.length && hist[0].role !== 'user') hist.shift();

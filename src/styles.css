@@ -147,3 +147,7 @@ button { -webkit-touch-callout: none; }
 
 /* Brauzerning o'z "x" tugmasini yashirish (o'zimizniki bor) */
 input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
+
+/* ---------- Ogohlantirish (I ro'yxat) — e'tiborni tortuvchi puls ---------- */
+@keyframes alertPulse { 0% { box-shadow: 0 0 0 0 rgb(var(--canvas) / .6); } 70% { box-shadow: 0 0 0 10px rgb(var(--canvas) / 0); } 100% { box-shadow: 0 0 0 0 rgb(var(--canvas) / 0); } }
+.alert-pulse { animation: alertPulse 1.8s ease-out infinite; }
