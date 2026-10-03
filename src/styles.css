@@ -2,50 +2,116 @@
 @tailwind components;
 @tailwind utilities;
 
+/* =====================================================================
+ *  Dizayn tokenlari. RGB uchliklar: Tailwind'da shaffoflik (bg-brand/20)
+ *  ishlashi uchun. Qorong'i rejim tizim sozlamasiga qarab avtomatik.
+ * ===================================================================== */
+:root {
+  color-scheme: light;
+  --backdrop: 226 231 239;
+  --canvas: 245 247 251;
+  --surface: 255 255 255;
+  --surface-2: 240 243 248;
+  --line: 227 232 240;
+  --ink: 15 23 42;
+  --ink-2: 71 85 105;
+  --ink-3: 100 116 139;
+
+  --brand: 51 85 255;
+  --brand-ink: 36 64 214;
+  --brand-soft: 236 240 255;
+  --accent: 229 72 77;
+
+  --sev1: 229 72 77;   --sev1-soft: 254 236 237; --sev1-ink: 176 33 41;
+  --sev2: 240 104 22;  --sev2-soft: 255 240 228; --sev2-ink: 168 64 8;
+  --sev3: 214 146 0;   --sev3-soft: 255 246 219; --sev3-ink: 128 82 0;
+  --sev4: 8 145 178;   --sev4-soft: 227 246 250; --sev4-ink: 12 100 123;
+  --sev5: 139 92 246;  --sev5-soft: 242 237 255; --sev5-ink: 101 58 207;
+  --ok: 22 163 74;     --ok-soft: 231 248 237;   --ok-ink: 21 112 59;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --backdrop: 3 5 10;
+    --canvas: 10 14 22;
+    --surface: 19 25 38;
+    --surface-2: 27 34 50;
+    --line: 39 48 67;
+    --ink: 233 238 246;
+    --ink-2: 170 180 198;
+    --ink-3: 132 144 165;
+
+    --brand: 71 102 255;
+    --brand-ink: 146 167 255;
+    --brand-soft: 29 39 78;
+    --accent: 240 90 95;
+
+    --sev1: 240 90 95;   --sev1-soft: 58 22 27;  --sev1-ink: 255 145 149;
+    --sev2: 250 128 52;  --sev2-soft: 60 32 16;  --sev2-ink: 255 172 115;
+    --sev3: 232 170 30;  --sev3-soft: 55 41 10;  --sev3-ink: 247 202 94;
+    --sev4: 34 175 205;  --sev4-soft: 11 45 55;  --sev4-ink: 104 216 238;
+    --sev5: 155 115 250; --sev5-soft: 40 28 70;  --sev5-ink: 192 168 255;
+    --ok: 40 190 100;    --ok-soft: 13 47 30;    --ok-ink: 112 226 152;
+  }
+}
+
 /* ---------- Asosiy ---------- */
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
 body {
-  background-color: #f8fafc;
-  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background-color: rgb(var(--backdrop));
+  color: rgb(var(--ink));
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-feature-settings: 'cv11', 'ss01';
   -webkit-font-smoothing: antialiased;
 }
-/* Fokus halqasi (klaviatura) */
-:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; border-radius: 6px; }
+:focus-visible { outline: 2px solid rgb(var(--brand)); outline-offset: 2px; }
+button { -webkit-touch-callout: none; }
+.tap { transition: transform .12s ease, background-color .15s ease, border-color .15s ease, color .15s ease; }
+.tap:active { transform: scale(.98); }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* ---------- Scrollbar ---------- */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+/* ---------- Telefon xavfsiz zonalari ---------- */
+.safe-top { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
 /* ---------- Animatsiyalar ---------- */
-@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-.fade-in { animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
-@keyframes popIn { 0% { transform: scale(0.97); opacity: 0.6; } 100% { transform: scale(1); opacity: 1; } }
-.animate-pulse-once { animation: popIn 0.35s ease-out; }
-.animate-pulse-slow { animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.fade-in { animation: fadeIn .32s cubic-bezier(.16, 1, .3, 1) both; }
+@keyframes popIn { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+.pop-in { animation: popIn .3s cubic-bezier(.16, 1, .3, 1) both; }
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+.sheet-up { animation: sheetUp .36s cubic-bezier(.16, 1, .3, 1) both; }
+@keyframes fadeBg { from { opacity: 0; } to { opacity: 1; } }
+.fade-bg { animation: fadeBg .25s ease both; }
+@keyframes sweep { 0%, 100% { transform: translateY(-34px); opacity: .25; } 50% { transform: translateY(34px); opacity: 1; } }
+.scan-sweep { animation: sweep 2.6s ease-in-out infinite; transform-box: fill-box; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
+.slide-in { animation: slideIn .4s cubic-bezier(.16, 1, .3, 1) both; }
+@keyframes dots { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+.typing-dot { animation: dots 1.2s infinite ease-in-out; }
+.typing-dot:nth-child(2) { animation-delay: .15s; }
+.typing-dot:nth-child(3) { animation-delay: .3s; }
+@keyframes toast { 0% { opacity: 0; transform: translate(-50%, 8px); } 12%, 85% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, 8px); } }
+.toast { animation: toast 2.2s ease both; }
 @media (prefers-reduced-motion: reduce) {
-  .fade-in, .animate-pulse-once, .animate-pulse-slow, .animate-spin, .animate-pulse { animation: none !important; }
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  .scan-sweep { animation: none !important; opacity: .8; }
 }
 
 /* ---------- Chat ---------- */
-.chat-bubble {
-  position: relative; max-width: 85%; padding: 10px 14px; border-radius: 16px;
-  font-size: 14px; line-height: 1.5; word-break: break-word; white-space: pre-wrap;
-}
-.chat-bubble.user { background: #2563eb; color: #fff; border-bottom-right-radius: 4px; margin-left: auto; white-space: pre-wrap; }
-.chat-bubble.assistant { background: #f1f5f9; color: #1e293b; border-bottom-left-radius: 4px; margin-right: auto; white-space: normal; }
+.chat-bubble { max-width: 86%; padding: 10px 14px; border-radius: 20px; font-size: 15px; line-height: 1.5; word-break: break-word; }
+.chat-bubble.user { background: rgb(var(--brand)); color: #fff; border-bottom-right-radius: 6px; margin-left: auto; white-space: pre-wrap; }
+.chat-bubble.assistant { background: rgb(var(--surface)); color: rgb(var(--ink)); border: 1px solid rgb(var(--line)); border-bottom-left-radius: 6px; }
+.chat-bubble.error { background: rgb(var(--sev1-soft)); color: rgb(var(--sev1-ink)); border-color: rgb(var(--sev1) / .25); }
 .chat-bubble .md-p { margin: 0 0 8px; }
 .chat-bubble .md-p:last-child, .chat-bubble .md-ul:last-child, .chat-bubble .md-ol:last-child { margin-bottom: 0; }
 .chat-bubble .md-h { font-weight: 700; margin: 0 0 6px; }
 .chat-bubble .md-ul, .chat-bubble .md-ol { margin: 0 0 8px; padding-left: 20px; }
 .chat-bubble .md-ul { list-style: disc; } .chat-bubble .md-ol { list-style: decimal; }
-.chat-bubble .md-ul li, .chat-bubble .md-ol li { margin: 2px 0; }
-.chat-bubble .md-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; background: rgba(0,0,0,0.06); padding: 1px 5px; border-radius: 4px; }
+.chat-bubble .md-ul li, .chat-bubble .md-ol li { margin: 3px 0; }
+.chat-bubble strong { font-weight: 700; }
+.chat-bubble .md-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; background: rgb(var(--surface-2)); padding: 1px 5px; border-radius: 5px; }
 
-/* ---------- Textarea avto-o'sish ---------- */
-.auto-grow { field-sizing: content; max-height: 7.5rem; }
-
-/* ---------- Telefon xavfsiz zonalari ---------- */
-.safe-top { padding-top: max(1.25rem, env(safe-area-inset-top)); }
-.safe-bottom { padding-bottom: max(0.75rem, env(safe-area-inset-bottom)); }
+/* Brauzerning o'z "x" tugmasini yashirish (o'zimizniki bor) */
+input[type="search"]::-webkit-search-cancel-button, input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }

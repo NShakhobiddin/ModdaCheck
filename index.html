@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>MODDACHECK — Bojxona nazorati</title>
     <meta name="description" content="O'zbekiston bojxonasida nazorat ostidagi moddalar va dori vositalarini tekshirish: qidiruv, rasm tahlili, AI maslahatchi. VMQ-330, VMQ-818, VMQ-191.">
-    <meta name="theme-color" content="#0f172a">
-    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#F5F7FB" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#0A0E16" media="(prefers-color-scheme: dark)">
+    <meta name="color-scheme" content="light dark">
     <meta name="application-name" content="MODDACHECK">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -35,9 +36,9 @@
     <!-- Telegram Web App SDK (Telegram ichida ochilganda; boshqa joyda zararsiz) -->
     <script src="https://telegram.org/js/telegram-web-app.js" async></script>
 </head>
-<body class="flex justify-center min-h-screen bg-slate-50">
+<body class="flex justify-center min-h-screen bg-backdrop text-ink">
 
-    <div id="root" class="w-full max-w-md bg-white min-h-screen shadow-2xl shadow-slate-300 flex flex-col border-x border-slate-200 relative overflow-hidden"></div>
+    <div id="root" class="w-full max-w-md min-h-screen relative bg-canvas sm:border-x sm:border-line"></div>
     <noscript><div style="padding:24px;font-family:system-ui">MODDACHECK ishlashi uchun JavaScript yoqilgan bo'lishi kerak.</div></noscript>
 
     <!-- Ma'lumotlar va modullar (o'z domenimizdan; oflayn ishlaydi) -->

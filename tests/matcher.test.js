@@ -84,6 +84,16 @@ test('QIDIRUV: kirill/lotin, apostrof, prefiks saralash', () => {
   assert.equal(M.search(INDEX, '').length, 0);
 });
 
+test('QIDIRUV: sinonim/brend orqali topilganda term qaytariladi', () => {
+  const r = M.search(INDEX, 'lirika')[0];
+  assert.equal(r.item.name, 'Pregabalin');
+  assert.equal(r.term, 'Lirika');
+  assert.equal(M.search(INDEX, 'Pregabalin')[0].term, null);
+  const k = M.search(INDEX, 'korvalol')[0];
+  assert.equal(k.item.name, 'Fenobarbital');
+  assert.equal(k.term, 'Korvalol');
+});
+
 test('fuzzy budjet uzunlikka bog\'liq', () => {
   assert.equal(M.fuzzyBudget(5), 0);
   assert.equal(M.fuzzyBudget(7), 1);

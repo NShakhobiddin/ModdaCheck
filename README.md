@@ -22,11 +22,13 @@ Brauzer (GitHub Pages, PWA)  ──POST──►  Cloudflare Worker (proxy)  ─
 
 | Yo'l | Nima |
 |---|---|
-| `src/app.jsx` | Ilova (React, JSX) — **tahrirlanadigan manba** |
+| `src/app.jsx` | Ilova (React, JSX) — ekranlar va holat |
+| `src/icons.jsx` | Maxsus chizilgan ikonkalar to'plami (24px setka, 1.75 chiziq) + logotip |
+| `src/illustrations.jsx` | Intro va skaner illyustratsiyalari (SVG, mavzuga mos) |
 | `src/matcher.js` | Moslashtirish: normalizatsiya, kirill↔lotin, so'z chegarasi, fuzzy darajalari |
 | `src/i18n.js` | Interfeys matnlari (uz / ru) |
 | `src/markdown.js` | Chat uchun xavfsiz Markdown render |
-| `src/styles.css` | Tailwind kirish fayli + maxsus CSS |
+| `src/styles.css` | Dizayn tokenlari (yorug'/qorong'i), animatsiyalar, Tailwind kirish fayli |
 | `src/sw.js` | Service worker shabloni (oflayn) |
 | `database.js` | Moddalar bazasi (`window.TAQIQ_DATABASE`) |
 | `public/` | manifest, ikonkalar |
@@ -37,6 +39,15 @@ Brauzer (GitHub Pages, PWA)  ──POST──►  Cloudflare Worker (proxy)  ─
 
 `dist/` **commit qilinmaydi** — GitHub Actions har push'da o'zi build qilib Pages'ga chiqaradi.
 
+## Dizayn tizimi
+
+- **Ranglar** — `src/styles.css` dagi CSS o'zgaruvchilari (`--canvas`, `--surface`, `--ink`, `--brand`, `--sev1..5`).
+  Qorong'i rejim tizim sozlamasiga qarab avtomatik. Tailwind'da: `bg-surface`, `text-ink-2`, `bg-sev3-soft`, `text-sev1-ink`.
+- **Toifa ranglari**: I ro'yxat — qizil, II — to'q sariq, III — sariq, IV — moviy, kuchli ta'sir qiluvchi — binafsha.
+- **Navigatsiya**: pastki menyu (Qidiruv, Skaner, Yordamchi, Qoidalar); telefonning "orqaga" tugmasi ishlaydi.
+- **Intro**: birinchi kirishda 3 ekran (`localStorage: mc_intro_v1`); "Ilova haqida" oynasidan qayta ko'rish mumkin.
+- **Til**: avtomatik (Telegram yoki qurilma tili), uz/ru.
+
 ## Ishlab chiqish
 
 ```bash
@@ -44,6 +55,7 @@ npm ci            # bog'liqliklar
 npm test          # testlar
 npm run build     # dist/ yaratish
 npm run dev       # build + http://localhost:8000
+npm run icons     # (ixtiyoriy) public/icons/icon.svg dan PNG ikonkalar; puppeteer kerak
 ```
 
 Kodni o'zgartirganda faqat `src/` va `database.js` ni tahrirlang. `dist/app.js` qo'lda yozilmaydi.

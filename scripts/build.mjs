@@ -26,7 +26,8 @@ rm(dist); mk(dist);
 
 // 1) JSX -> JS
 const babel = require('@babel/core');
-const jsx = read(path.join(root, 'src/app.jsx'));
+// Tartib muhim: ikonkalar va illyustratsiyalar app.jsx dan oldin
+const jsx = ['src/icons.jsx', 'src/illustrations.jsx', 'src/app.jsx'].map((f) => read(path.join(root, f))).join('\n;\n');
 const compiled = babel.transformSync(jsx, {
   presets: [[require.resolve('@babel/preset-react'), { runtime: 'classic' }]],
   filename: 'app.jsx', compact: false, comments: false,

@@ -240,7 +240,7 @@
     const qc = q.replace(/ /g, '');
     const results = [];
     for (const entry of index.items) {
-      let score = 0;
+      let score = 0, term = null;
       for (const t of entry.terms) {
         let s = 0;
         if (t.norm === q || t.compact === qc) s = 100;
@@ -249,9 +249,10 @@
         else if (t.compact.includes(qc) && qc.length >= 3) s = 40;
         else if (t.norm.includes(q) && q.length >= 2) s = 30;
         if (s && t.norm === entry.nameNorm) s += 5; // asosiy nom ustunroq
-        if (s > score) score = s;
+        if (s > score) { score = s; term = t; }
       }
-      if (score) results.push({ item: entry.item, score });
+      // term: agar asosiy nom emas, sinonim/brend orqali topilgan bo'lsa — ko'rsatish uchun
+      if (score) results.push({ item: entry.item, score, term: term && term.norm !== entry.nameNorm ? term.text : null });
     }
     results.sort((a, b) => b.score - a.score || a.item.name.localeCompare(b.item.name));
     return limit ? results.slice(0, limit) : results;

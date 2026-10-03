@@ -1,8 +1,8 @@
 {
   "name": "moddacheck",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
-  "description": "MODDACHECK — O'zbekiston bojxonasida nazorat ostidagi moddalarni tekshirish ilovasi",
+  "description": "MODDACHECK \u2014 O'zbekiston bojxonasida nazorat ostidagi moddalarni tekshirish ilovasi",
   "scripts": {
     "build": "node scripts/build.mjs",
     "test": "node --test tests/*.test.js",

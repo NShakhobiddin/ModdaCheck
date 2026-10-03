@@ -1,14 +1,30 @@
 /** @type {import('tailwindcss').Config} */
+const v = (name) => `rgb(var(--${name}) / <alpha-value>)`;
+const sev = (n) => ({ DEFAULT: v(n), soft: v(`${n}-soft`), ink: v(`${n}-ink`) });
+
 module.exports = {
   content: ['./index.html', './src/**/*.{jsx,js}'],
-  theme: { extend: {} },
-  // Dinamik tarzda yig'iladigan ranglar (JSX ichida to'liq satr sifatida bor, lekin ehtiyot uchun)
-  safelist: [
-    'shadow-red-200', 'shadow-orange-200', 'shadow-amber-200', 'shadow-cyan-200', 'shadow-purple-200',
-    'bg-red-50', 'bg-orange-50', 'bg-amber-50', 'bg-cyan-50', 'bg-purple-50',
-    'text-red-700', 'text-orange-700', 'text-amber-700', 'text-cyan-700', 'text-purple-700',
-    'border-red-200', 'border-orange-200', 'border-amber-200', 'border-cyan-200', 'border-purple-200',
-    'bg-red-600', 'bg-orange-500', 'bg-amber-500', 'bg-cyan-600', 'bg-purple-600',
-  ],
+  theme: {
+    extend: {
+      colors: {
+        backdrop: v('backdrop'),
+        canvas: v('canvas'),
+        surface: { DEFAULT: v('surface'), 2: v('surface-2') },
+        line: v('line'),
+        ink: { DEFAULT: v('ink'), 2: v('ink-2'), 3: v('ink-3') },
+        brand: { DEFAULT: v('brand'), ink: v('brand-ink'), soft: v('brand-soft') },
+        accent: v('accent'),
+        sev1: sev('sev1'), sev2: sev('sev2'), sev3: sev('sev3'), sev4: sev('sev4'), sev5: sev('sev5'),
+        ok: sev('ok'),
+      },
+      fontSize: { '2xs': ['11px', '15px'] },
+      boxShadow: {
+        card: '0 1px 2px rgb(15 23 42 / .04), 0 2px 8px -2px rgb(15 23 42 / .06)',
+        float: '0 8px 30px -8px rgb(15 23 42 / .25)',
+      },
+    },
+  },
+  // Illyustratsiyalarda dinamik yig'iladigan klasslar
+  safelist: ['fill-sev1', 'fill-sev3', 'fill-ok', 'fill-sev1-soft', 'fill-sev3-soft', 'fill-ok-soft'],
   plugins: [],
 };
