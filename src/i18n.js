@@ -148,6 +148,7 @@
       leg_source: 'Manba',
 
       // Ilova haqida
+      info_lang: 'Til',
       info_title: 'Ilova haqida', info_version: 'Versiya', info_db: 'Baza', info_db_entries: '{n} ta modda', info_updated: 'Yangilangan',
       info_disclaimer_title: 'Muhim eslatma',
       info_disclaimer: 'MODDACHECK — ma\'lumotnoma vosita. U yuridik maslahat emas va rasmiy qarorni almashtirmaydi. Ma\'lumotlar VMQ-330, VMQ-818 va VMQ-191 asosida tayyorlangan; qonunchilik o\'zgarishi mumkin.',
@@ -291,6 +292,7 @@
       leg_warn_text: 'Провоз без декларирования и без медицинского документа влечёт уголовную ответственность.',
       leg_source: 'Источник',
 
+      info_lang: 'Язык',
       info_title: 'О приложении', info_version: 'Версия', info_db: 'База', info_db_entries: '{n} веществ', info_updated: 'Обновлено',
       info_disclaimer_title: 'Важно',
       info_disclaimer: 'MODDACHECK — справочный инструмент. Это не юридическая консультация и не замена официального решения. Данные основаны на ПКМ-330, ПКМ-818 и ПКМ-191; законодательство может меняться.',

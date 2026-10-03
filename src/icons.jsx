@@ -31,6 +31,9 @@ const Ic = {
     // --- Toifalar ---
     Ban: (p) => <Svg {...p}><circle cx="12" cy="12" r="8.5" /><path d="M6 6l12 12" /></Svg>,
     Rx: (p) => <Svg {...p}><path d="M6.5 20V4h4.75a3.6 3.6 0 0 1 0 7.2H6.5" /><path d="M9.6 11.2 18.5 20.5" /><path d="M18.5 13.5 12 20.5" /></Svg>,
+    // Cheklangan (dori shishasi + qulf)
+    Restricted: (p) => <Svg {...p}><rect x="4" y="3" width="8" height="3" rx=".9" /><path d="M4.5 6h7l.75 2.5v10a2 2 0 0 1-2 2H5.75a2 2 0 0 1-2-2v-10L4.5 6Z" /><path d="M8 11.25v4M6 13.25h4" /><rect x="13.25" y="14" width="8" height="6.75" rx="1.6" /><path d="M15.25 14v-1.6a2 2 0 0 1 4 0V14" /></Svg>,
+    Globe: (p) => <Svg {...p}><circle cx="12" cy="12" r="8.75" /><path d="M3.25 12h17.5" /><path d="M12 3.25c2.4 2.4 3.6 5.3 3.6 8.75S14.4 18.35 12 20.75C9.6 18.35 8.4 15.45 8.4 12S9.6 5.65 12 3.25Z" /></Svg>,
     Capsule: (p) => <Svg {...p}><g transform="rotate(-45 12 12)"><rect x="3.25" y="8.25" width="17.5" height="7.5" rx="3.75" /><path d="M12 8.25v7.5" /><path d="M12 8.25h4.25a3.75 3.75 0 0 1 0 7.5H12Z" fill="currentColor" fillOpacity=".22" stroke="none" /></g></Svg>,
     Flask: (p) => <Svg {...p}><path d="M9 3.5h6" /><path d="M10.25 3.5v5.4L5.4 17.4a2.1 2.1 0 0 0 1.85 3.1h9.5a2.1 2.1 0 0 0 1.85-3.1l-4.85-8.5V3.5" /><path d="M7.6 14.5h8.8" /></Svg>,
     Bolt: (p) => <Svg {...p}><path d="M13.25 3 5.75 13.25h5.75L10.75 21l7.5-10.25H12.5L13.25 3Z" /></Svg>,

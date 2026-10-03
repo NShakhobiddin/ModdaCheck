@@ -33,8 +33,19 @@
       window.__BUILD_ID__ = '%%VERSION%%';
       window.__BUILD_DATE__ = '%%BUILD_DATE%%';
     </script>
-    <!-- Telegram Web App SDK (Telegram ichida ochilganda; boshqa joyda zararsiz) -->
-    <script src="https://telegram.org/js/telegram-web-app.js" async></script>
+    <script>
+      // Telegram Mini App SDK faqat Telegram ichida yuklanadi (oddiy brauzerda keraksiz so'rov bo'lmasin).
+      // Yuklangach 'tg-ready' hodisasi ilovaga to'liq ekran, mavzu va "orqaga" tugmasini yoqishni bildiradi.
+      (function () {
+        var inTg = /tgWebApp/i.test(location.hash) || !!window.TelegramWebviewProxy || !!window.TelegramWebview;
+        if (!inTg) return;
+        document.documentElement.classList.add('in-tg');
+        var s = document.createElement('script');
+        s.src = 'https://telegram.org/js/telegram-web-app.js';
+        s.onload = function () { window.dispatchEvent(new Event('tg-ready')); };
+        document.head.appendChild(s);
+      })();
+    </script>
 </head>
 <body class="flex justify-center min-h-screen bg-backdrop text-ink">
 

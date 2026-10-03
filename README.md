@@ -46,7 +46,10 @@ Brauzer (GitHub Pages, PWA)  ──POST──►  Cloudflare Worker (proxy)  ─
 - **Toifa ranglari**: I ro'yxat — qizil, II — to'q sariq, III — sariq, IV — moviy, kuchli ta'sir qiluvchi — binafsha.
 - **Navigatsiya**: pastki menyu (Qidiruv, Skaner, Yordamchi, Qoidalar); telefonning "orqaga" tugmasi ishlaydi.
 - **Intro**: birinchi kirishda 3 ekran (`localStorage: mc_intro_v1`); "Ilova haqida" oynasidan qayta ko'rish mumkin.
-- **Til**: avtomatik (Telegram yoki qurilma tili), uz/ru.
+- **Til**: asosiy — o'zbekcha. Ruscha faqat "Ilova haqida" (i) oynasidan tanlanadi va eslab qolinadi (`localStorage: mc_lang`).
+- **Telegram Mini App**: Telegram ichida ochilganda SDK yuklanadi; ilova to'liq balandlikka yoyiladi, telefonlarda
+  to'liq ekran rejimi so'raladi (Bot API 8.0+), Telegram mavzusi (yorug'/qorong'i), xavfsiz zonalar va Telegram'ning
+  "orqaga" tugmasi ishlatiladi, aylantirishda ilova yopilib qolmaydi. Oddiy brauzerda SDK umuman yuklanmaydi.
 
 ## Ishlab chiqish
 

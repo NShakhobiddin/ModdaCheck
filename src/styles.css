@@ -29,8 +29,9 @@
   --sev5: 139 92 246;  --sev5-soft: 242 237 255; --sev5-ink: 101 58 207;
   --ok: 22 163 74;     --ok-soft: 231 248 237;   --ok-ink: 21 112 59;
 }
+/* Qorong'i rejim: tizim sozlamasi (agar Telegram yorug' mavzuni majburlamasa) */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     color-scheme: dark;
     --backdrop: 3 5 10;
     --canvas: 10 14 22;
@@ -54,6 +55,30 @@
     --ok: 40 190 100;    --ok-soft: 13 47 30;    --ok-ink: 112 226 152;
   }
 }
+/* Telegram qorong'i mavzusi (data-theme ilova tomonidan qo'yiladi) */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --backdrop: 3 5 10;
+  --canvas: 10 14 22;
+  --surface: 19 25 38;
+  --surface-2: 27 34 50;
+  --line: 39 48 67;
+  --ink: 233 238 246;
+  --ink-2: 170 180 198;
+  --ink-3: 132 144 165;
+
+  --brand: 71 102 255;
+  --brand-ink: 146 167 255;
+  --brand-soft: 29 39 78;
+  --accent: 240 90 95;
+
+  --sev1: 240 90 95;   --sev1-soft: 58 22 27;  --sev1-ink: 255 145 149;
+  --sev2: 250 128 52;  --sev2-soft: 60 32 16;  --sev2-ink: 255 172 115;
+  --sev3: 232 170 30;  --sev3-soft: 55 41 10;  --sev3-ink: 247 202 94;
+  --sev4: 34 175 205;  --sev4-soft: 11 45 55;  --sev4-ink: 104 216 238;
+  --sev5: 155 115 250; --sev5-soft: 40 28 70;  --sev5-ink: 192 168 255;
+  --ok: 40 190 100;    --ok-soft: 13 47 30;    --ok-ink: 112 226 152;
+}
 
 /* ---------- Asosiy ---------- */
 html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
@@ -71,9 +96,16 @@ button { -webkit-touch-callout: none; }
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* ---------- Telefon xavfsiz zonalari ---------- */
-.safe-top { padding-top: env(safe-area-inset-top); }
-.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+/* ---------- Telefon xavfsiz zonalari ----------
+ * Oddiy brauzerda env(); Telegram'da (ayniqsa to'liq ekranda) Telegram bergan
+ * qiymatlar (--tg-top = qurilma + Telegram tugmalari zonasi). */
+:root { --sat: env(safe-area-inset-top, 0px); --sab: env(safe-area-inset-bottom, 0px); }
+:root.in-tg { --sat: max(env(safe-area-inset-top, 0px), var(--tg-top, 0px)); --sab: max(env(safe-area-inset-bottom, 0px), var(--tg-bottom, 0px)); }
+.safe-top { padding-top: var(--sat); }
+.safe-bottom { padding-bottom: var(--sab); }
+/* Telegram ichida: chetdan "sakrash" va tortib yangilash yo'q (ilova hissi), yon chiziqlarsiz */
+:root.in-tg, :root.in-tg body { overscroll-behavior: none; }
+:root.in-tg #root { border: 0; }
 
 /* ---------- Animatsiyalar ---------- */
 @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }

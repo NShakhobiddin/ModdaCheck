@@ -31,7 +31,7 @@
         // rank: xavflilik (1 eng yuqori) — skaner natijasida banner tanlash uchun
         const WARNING_TYPES = {
             "O‘zbekiston Respublikasida muomalada bo‘lishi taqiqlangan giyohvandlik vositasi": { code: 'c1', rank: 1, Icon: Ic.Ban, law: "VMQ-330, 4-ilova", lawUrl: "https://lex.uz/docs/2815342" },
-            "O‘zbekiston Respublikasida muomalada bo‘lishi cheklangan giyohvandlik vositasi": { code: 'c2', rank: 2, Icon: Ic.Rx, law: "VMQ-330, 5-ilova", lawUrl: "https://lex.uz/docs/2815342" },
+            "O‘zbekiston Respublikasida muomalada bo‘lishi cheklangan giyohvandlik vositasi": { code: 'c2', rank: 2, Icon: Ic.Restricted, law: "VMQ-330, 5-ilova", lawUrl: "https://lex.uz/docs/2815342" },
             "O‘zbekiston Respublikasida muomalada bo‘lishi cheklangan psixotrop modda": { code: 'c3', rank: 3, Icon: Ic.Capsule, law: "VMQ-330, 6-ilova", lawUrl: "https://lex.uz/docs/2815342" },
             "O‘zbekiston Respublikasida muomalada bo‘lishi cheklangan prekursor": { code: 'c4', rank: 5, Icon: Ic.Flask, law: "VMQ-330, 7-ilova", lawUrl: "https://lex.uz/docs/2815342" },
             "Kuchli ta'sir qiluvchi modda": { code: 'c5', rank: 4, Icon: Ic.Bolt, law: "VMQ-818, 1-ilova", lawUrl: "https://lex.uz/docs/-4532164" },
@@ -130,6 +130,66 @@
         }
 
         // =====================================================================
+        //  Telegram Mini App integratsiyasi
+        //  SDK faqat Telegram ichida yuklanadi (index.html) va 'tg-ready' hodisasini yuboradi.
+        // =====================================================================
+        const getTg = () => {
+            const w = window.Telegram && window.Telegram.WebApp;
+            return w && w.platform && w.platform !== 'unknown' ? w : null;
+        };
+        const tgVer = (tg, v) => { try { return !!tg.isVersionAtLeast(v); } catch (e) { return false; } };
+        let TG = null; // haptik uchun global havola
+        function haptic(kind) {
+            const h = TG && TG.HapticFeedback;
+            if (!h || !tgVer(TG, '6.1')) return;
+            try {
+                if (kind === 'select') h.selectionChanged();
+                else if (kind === 'light') h.impactOccurred('light');
+                else h.notificationOccurred(kind); // success | warning | error
+            } catch (e) {}
+        }
+        function useTelegram() {
+            const [tg, setTg] = useState(getTg);
+            useEffect(() => {
+                if (tg) return;
+                const on = () => setTg(getTg());
+                window.addEventListener('tg-ready', on);
+                return () => window.removeEventListener('tg-ready', on);
+            }, [tg]);
+            useEffect(() => {
+                if (!tg) return;
+                TG = tg;
+                const root = document.documentElement;
+                root.classList.add('in-tg');
+                try { tg.ready(); } catch (e) {}
+                try { tg.expand(); } catch (e) {} // to'liq balandlikka yoyish
+                // Telefonlarda haqiqiy to'liq ekran (Bot API 8.0+)
+                const mobile = /^(android|android_x|ios)$/.test(tg.platform);
+                if (mobile && tgVer(tg, '8.0') && tg.requestFullscreen && !tg.isFullscreen) { try { tg.requestFullscreen(); } catch (e) {} }
+                // Ro'yxatni aylantirganda ilova pastga surilib yopilib qolmasin
+                if (tgVer(tg, '7.7') && tg.disableVerticalSwipes) { try { tg.disableVerticalSwipes(); } catch (e) {} }
+                const theme = () => {
+                    const dark = tg.colorScheme === 'dark';
+                    root.setAttribute('data-theme', dark ? 'dark' : 'light');
+                    const c = dark ? '#0A0E16' : '#F5F7FB';
+                    try { if (tgVer(tg, '6.1')) { tg.setHeaderColor(c); tg.setBackgroundColor(c); } } catch (e) {}
+                    try { if (tgVer(tg, '7.10') && tg.setBottomBarColor) tg.setBottomBarColor(dark ? '#131926' : '#FFFFFF'); } catch (e) {}
+                };
+                const insets = () => {
+                    const s = tg.safeAreaInset || {}, c = tg.contentSafeAreaInset || {};
+                    root.style.setProperty('--tg-top', ((s.top || 0) + (c.top || 0)) + 'px');
+                    root.style.setProperty('--tg-bottom', ((s.bottom || 0) + (c.bottom || 0)) + 'px');
+                    root.classList.toggle('tg-fullscreen', !!tg.isFullscreen);
+                };
+                theme(); insets();
+                const evs = [['themeChanged', theme], ['safeAreaChanged', insets], ['contentSafeAreaChanged', insets], ['fullscreenChanged', insets], ['viewportChanged', insets]];
+                evs.forEach(([e, f]) => { try { tg.onEvent(e, f); } catch (er) {} });
+                return () => evs.forEach(([e, f]) => { try { tg.offEvent(e, f); } catch (er) {} });
+            }, [tg]);
+            return tg;
+        }
+
+        // =====================================================================
         //  UI primitivlari
         // =====================================================================
         const Wordmark = ({ className = '' }) => (
@@ -186,16 +246,18 @@
         // =====================================================================
         //  Sarlavha va pastki navigatsiya
         // =====================================================================
-        const AppBar = ({ t, online, onInfo, onBack, title, children }) => (
+        const AppBar = ({ t, online, onInfo, onBack, sub, title, children }) => (
             <header className="sticky top-0 z-40 bg-canvas/85 backdrop-blur-xl safe-top">
                 <div className="h-14 px-2 flex items-center gap-1">
                     {onBack ? (
                         <button type="button" onClick={onBack} aria-label={t('back')} className="tap h-11 w-11 grid place-items-center rounded-full text-ink hover:bg-surface-2"><Ic.ChevronLeft className="w-6 h-6" /></button>
+                    ) : sub ? (
+                        <div className="w-2" />
                     ) : (
                         <div className="pl-2 pr-1"><LogoMark size={30} /></div>
                     )}
                     <div className="flex-1 min-w-0 px-1">
-                        {onBack ? <p className="font-semibold text-[16px] truncate">{title}</p> : <Wordmark className="text-[19px]" />}
+                        {sub ? <p className="font-semibold text-[16px] truncate">{title}</p> : <Wordmark className="text-[19px]" />}
                     </div>
                     {!online && (
                         <span role="status" className="flex items-center gap-1 text-[12px] font-semibold text-sev3-ink bg-sev3-soft px-2.5 py-1 rounded-full mr-1"><Ic.WifiOff className="w-3.5 h-3.5" />{t('offline_badge')}</span>
@@ -289,7 +351,7 @@
         // =====================================================================
         //  "Ilova haqida" — pastdan chiqadigan oyna
         // =====================================================================
-        const InfoSheet = ({ t, onClose, onIntro }) => {
+        const InfoSheet = ({ t, lang, onLang, onClose, onIntro }) => {
             const ref = useRef(null);
             useEffect(() => {
                 const k = (e) => { if (e.key === 'Escape') onClose(); };
@@ -308,7 +370,7 @@
                     <div className="absolute inset-0 bg-black/45 fade-bg" onClick={onClose} />
                     <div ref={ref} tabIndex={-1} className="relative w-full max-w-md bg-canvas rounded-t-[28px] sheet-up max-h-[90vh] overflow-y-auto outline-none">
                         <div className="sticky top-0 z-10 bg-canvas pt-3 pb-2 flex justify-center"><span className="h-1.5 w-10 rounded-full bg-ink-3/30" /></div>
-                        <div className="px-4 pb-[calc(24px+env(safe-area-inset-bottom))] space-y-4">
+                        <div className="px-4 pb-[calc(24px+var(--sab))] space-y-4">
                             <div className="flex items-center gap-3 px-1">
                                 <LogoMark size={52} />
                                 <div className="flex-1 min-w-0">
@@ -316,6 +378,16 @@
                                     <p className="text-[13px] text-ink-3 mt-1">{t('info_version')} {APP_VERSION}{BUILD_DATE ? ` · ${BUILD_DATE}` : ''}</p>
                                 </div>
                                 <button type="button" aria-label={t('info_close')} onClick={onClose} className="tap h-10 w-10 grid place-items-center rounded-full bg-surface-2 text-ink-2"><Ic.Close className="w-5 h-5" /></button>
+                            </div>
+                            <div>
+                                <Label>{t('info_lang')}</Label>
+                                <Card className="p-1.5 flex items-center gap-1" role="group" aria-label={t('info_lang')}>
+                                    <span className="pl-2.5 pr-1 text-ink-3"><Ic.Globe className="w-5 h-5" /></span>
+                                    {[['uz', "O'zbekcha"], ['ru', 'Русский']].map(([l, label]) => (
+                                        <button key={l} type="button" lang={l} onClick={() => onLang(l)} aria-pressed={lang === l}
+                                            className={`tap flex-1 h-10 rounded-xl text-[14px] font-semibold ${lang === l ? 'bg-brand text-white shadow-card' : 'text-ink-2 hover:bg-surface-2'}`}>{label}</button>
+                                    ))}
+                                </Card>
                             </div>
                             <div className="rounded-2xl bg-sev3-soft p-4">
                                 <p className="font-semibold text-sev3-ink flex items-center gap-2"><Ic.Alert className="w-[18px] h-[18px]" />{t('info_disclaimer_title')}</p>
@@ -726,7 +798,7 @@
                 )}
             </div>
             {/* Yozish maydoni: transform'li (animatsiyali) blokdan TASHQARIDA bo'lishi shart, aks holda position:fixed buziladi */}
-                <div className={`fixed left-1/2 -translate-x-1/2 w-full max-w-md z-30 px-3 pt-3 bg-gradient-to-t from-canvas via-canvas to-canvas/0 ${kbOpen ? 'bottom-0 pb-[calc(8px+env(safe-area-inset-bottom))]' : 'bottom-[calc(64px+env(safe-area-inset-bottom))] pb-2'}`}>
+                <div className={`fixed left-1/2 -translate-x-1/2 w-full max-w-md z-30 px-3 pt-3 bg-gradient-to-t from-canvas via-canvas to-canvas/0 ${kbOpen ? 'bottom-0 pb-[calc(8px+var(--sab))]' : 'bottom-[calc(64px+var(--sab))] pb-2'}`}>
                     <div className="flex items-end gap-2 rounded-[26px] bg-surface border border-line shadow-float pl-4 pr-1.5 py-1.5 focus-within:border-brand">
                         <label htmlFor="chat-input" className="sr-only">{t('chat_placeholder')}</label>
                         <textarea id="chat-input" ref={textareaRef} rows={1} value={input} onChange={onInput}
@@ -844,7 +916,7 @@
                             </div>
                         </div>
                         <div className="rounded-3xl bg-sev2-soft p-4">
-                            <div className="flex items-center gap-3"><span className="w-10 h-10 rounded-xl bg-surface text-sev2-ink grid place-items-center"><Ic.Rx className="w-5 h-5" /></span><p className="font-bold text-[15px] text-sev2-ink">{t('leg_narc_title')}</p></div>
+                            <div className="flex items-center gap-3"><span className="w-10 h-10 rounded-xl bg-surface text-sev2-ink grid place-items-center"><Ic.Restricted className="w-5 h-5" /></span><p className="font-bold text-[15px] text-sev2-ink">{t('leg_narc_title')}</p></div>
                             <div className="rounded-2xl bg-surface p-3 mt-3 flex items-center gap-3"><Ic.Clock className="w-6 h-6 text-sev2-ink shrink-0" /><div><span className="block text-[20px] font-extrabold text-sev2-ink leading-tight">{t('leg_7days')}</span><span className="block text-[13px] text-ink-2">{t('leg_7days_sub')}</span></div></div>
                             <p className="text-[12px] font-semibold text-ink-3 mt-4 mb-2">{t('leg_docs')}</p>
                             <div className="space-y-2">
@@ -866,20 +938,9 @@
         //  ILOVA
         // =====================================================================
         const App = () => {
-            // Til avtomatik aniqlanadi (Telegram yoki qurilma tili). Tanlash tugmasi yo'q.
-            // O'zbek tili birinchi o'rinda bo'lsa yoki rus tili umuman bo'lmasa -> uz.
-            const lang = useMemo(() => {
-                try {
-                    const tgLang = window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe
-                        && window.Telegram.WebApp.initDataUnsafe.user && window.Telegram.WebApp.initDataUnsafe.user.language_code;
-                    const list = [tgLang].concat(navigator.languages || [navigator.language]).filter(Boolean).map((s) => String(s).toLowerCase());
-                    for (const l of list) {
-                        if (l.startsWith('uz')) return 'uz';
-                        if (l.startsWith('ru') || l.startsWith('be') || l.startsWith('kk') || l.startsWith('ky') || l.startsWith('tg')) return 'ru';
-                    }
-                } catch (e) {}
-                return 'uz';
-            }, []);
+            // Til: asosiy — o'zbekcha. Boshqa til faqat "Ilova haqida" (i) oynasidan tanlanadi va eslab qolinadi.
+            const [lang, setLang] = useState(() => (LS.get('mc_lang') === 'ru' ? 'ru' : 'uz'));
+            const changeLang = (l) => { setLang(l); LS.set('mc_lang', l); haptic('select'); };
             useEffect(() => { document.documentElement.lang = lang; }, [lang]);
             const t = useCallback((k, vars) => I18N.t(lang, k, vars), [lang]);
 
@@ -891,20 +952,8 @@
                 return () => { window.removeEventListener('online', on); window.removeEventListener('offline', off); };
             }, []);
 
-            // Telegram Web App: sarlavha rangini mavzuga moslash (SDK kech yuklanishi mumkin)
-            useEffect(() => {
-                const apply = () => {
-                    const tg = window.Telegram && window.Telegram.WebApp;
-                    if (!tg) return false;
-                    try {
-                        const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-                        const c = dark ? '#0A0E16' : '#F5F7FB';
-                        tg.ready(); tg.expand(); tg.setHeaderColor(c); tg.setBackgroundColor(c);
-                    } catch (e) {}
-                    return true;
-                };
-                if (!apply()) { const id = setTimeout(apply, 1200); return () => clearTimeout(id); }
-            }, []);
+            // Telegram Mini App: to'liq ekran, mavzu, xavfsiz zonalar, "orqaga" tugmasi
+            const tg = useTelegram();
 
             // Klaviatura ochiqligini aniqlash (sensorli qurilmalarda pastki menyuni yashirish uchun)
             const [kbOpen, setKbOpen] = useState(false);
@@ -955,8 +1004,8 @@
                 return () => window.removeEventListener('popstate', onPop);
             }, []);
             const push = (v) => { try { history.pushState({ mc: v }, ''); } catch (e) {} };
-            const openItem = (item) => { scrollMemo.current = window.scrollY; setSelectedItem(item); pushRecent(item.id); push('item'); };
-            const openCategory = (cat) => { setSelectedCategory(cat); push('cat'); };
+            const openItem = (item) => { haptic('light'); scrollMemo.current = window.scrollY; setSelectedItem(item); pushRecent(item.id); push('item'); };
+            const openCategory = (cat) => { haptic('light'); setSelectedCategory(cat); push('cat'); };
             const goBack = () => {
                 if (history.state && history.state.mc) { history.back(); return; }
                 if (selectedItem) setSelectedItem(null); else if (selectedCategory) setSelectedCategory(null);
@@ -1021,10 +1070,12 @@
                     const matches = M.matchDetectedList(INDEX, names).sort((a, b) => cfgOf(a.item.category).rank - cfgOf(b.item.category).rank || (a.tier === 'exact' ? -1 : 1));
                     setScanDetected(names); setScanReadable(readable && names.length > 0); setScanMatches(matches);
                     setScanPhase('done');
+                    haptic(matches.length ? (cfgOf(matches[0].item.category).rank === 1 ? 'error' : 'warning') : 'success');
                 } catch (err) {
                     console.error('Scan API Error:', err);
                     setScanPhase('error');
                     setScanError(describeError(err, t));
+                    haptic('error');
                 }
             };
             const onPickFile = (e) => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) analyzeFile(f); };
@@ -1036,6 +1087,9 @@
             const chatEndRef = useRef(null);
             const textareaRef = useRef(null);
             useEffect(() => { if (mode === 'chat' && messages.length > 1 && chatEndRef.current) chatEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' }); }, [messages, isLoadingChat, mode]);
+            useEffect(() => {
+                setMessages((prev) => (prev.length === 1 && prev[0].meta === 'welcome' ? [{ role: 'assistant', text: t('chat_welcome'), meta: 'welcome' }] : prev));
+            }, [lang]);
             const onChatInput = (e) => { setChatInput(e.target.value); const el = e.target; el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 128) + 'px'; };
 
             const sendMessage = async (textOverride) => {
@@ -1106,10 +1160,26 @@ Qoidalar: faqat berilgan ma'lumotlarga tayaning, aniq bilmasangiz "aniq emas, bo
             };
 
             const changeMode = (m) => {
+                if (m !== mode) haptic('select');
                 setMode(m);
                 setSelectedItem(null); setSelectedCategory(null);
                 if (m !== 'search') { setQuery(''); setCatFilter(null); }
             };
+
+            // --- Telegram'ning o'z "orqaga" tugmasi ---
+            const tgBack = !!(tg && tg.BackButton && tgVer(tg, '6.1'));
+            const backRef = useRef(null);
+            backRef.current = () => { if (showInfo) setShowInfo(false); else goBack(); };
+            useEffect(() => {
+                if (!tgBack) return;
+                const h = () => backRef.current && backRef.current();
+                try { tg.BackButton.onClick(h); } catch (e) {}
+                return () => { try { tg.BackButton.offClick(h); } catch (e) {} };
+            }, [tgBack]);
+            useEffect(() => {
+                if (!tgBack) return;
+                try { if (selectedItem || selectedCategory || showInfo) tg.BackButton.show(); else tg.BackButton.hide(); } catch (e) {}
+            }, [tgBack, selectedItem, selectedCategory, showInfo]);
 
             // --- Sarlavha holati ---
             const subview = selectedItem ? 'item' : (selectedCategory && mode === 'search') ? 'cat' : null;
@@ -1119,9 +1189,9 @@ Qoidalar: faqat berilgan ma'lumotlarga tayaning, aniq bilmasangiz "aniq emas, bo
             return (
                 <div className="min-h-[100dvh] flex flex-col bg-canvas text-ink">
                     {showIntro && <Intro t={t} onDone={finishIntro} />}
-                    {showInfo && <InfoSheet t={t} onClose={() => setShowInfo(false)} onIntro={() => { setShowInfo(false); setShowIntro(true); }} />}
+                    {showInfo && <InfoSheet t={t} lang={lang} onLang={changeLang} onClose={() => setShowInfo(false)} onIntro={() => { setShowInfo(false); setShowIntro(true); }} />}
 
-                    <AppBar t={t} online={online} onInfo={() => setShowInfo(true)} onBack={subview ? goBack : null} title={barTitle}>
+                    <AppBar t={t} online={online} onInfo={() => setShowInfo(true)} onBack={subview && !tgBack ? goBack : null} sub={!!subview} title={barTitle}>
                         {showSearchField && (
                             <div className="px-4 pb-3">
                                 <div className="relative">
@@ -1140,7 +1210,7 @@ Qoidalar: faqat berilgan ma'lumotlarga tayaning, aniq bilmasangiz "aniq emas, bo
                         )}
                     </AppBar>
 
-                    <main className={`flex-1 px-4 pt-4 ${mode === 'chat' && !selectedItem ? 'pb-[calc(150px+env(safe-area-inset-bottom))]' : 'pb-[calc(96px+env(safe-area-inset-bottom))]'}`}>
+                    <main className={`flex-1 px-4 pt-4 ${mode === 'chat' && !selectedItem ? 'pb-[calc(150px+var(--sab))]' : 'pb-[calc(96px+var(--sab))]'}`}>
                         {selectedItem ? (
                             <DetailView key={selectedItem.id} t={t} item={selectedItem} onShare={shareItem} />
                         ) : mode === 'search' ? (
@@ -1164,7 +1234,7 @@ Qoidalar: faqat berilgan ma'lumotlarga tayaning, aniq bilmasangiz "aniq emas, bo
 
                     <TabBar t={t} mode={mode} onChange={changeMode} hidden={kbOpen} />
 
-                    {toast && <div key={toast.id} role="status" className="toast fixed left-1/2 bottom-[calc(84px+env(safe-area-inset-bottom))] z-[90] bg-ink text-canvas text-[14px] font-semibold px-4 py-2.5 rounded-full shadow-float">{toast.msg}</div>}
+                    {toast && <div key={toast.id} role="status" className="toast fixed left-1/2 bottom-[calc(84px+var(--sab))] z-[90] bg-ink text-canvas text-[14px] font-semibold px-4 py-2.5 rounded-full shadow-float">{toast.msg}</div>}
                 </div>
             );
         };
